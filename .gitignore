@@ -1,1 +1,3 @@
 /Mips64GUISkeleton/dist/
+*.class
+*.xml

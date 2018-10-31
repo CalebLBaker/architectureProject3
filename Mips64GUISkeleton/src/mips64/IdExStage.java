@@ -21,19 +21,37 @@ public class IdExStage {
         simulator = sim;
         registers = new int[16];
     }
-
-    public void setRegister(char regNum, int value) {
-        registers[regNum] = value;
+    
+    public boolean getShouldWriteback() {
+        return shouldWriteback;
     }
     
-    public int getRegister(char regNum) {
-        return registers[regNum];
+    public int getInstPC() {
+        return instPC;
     }
+    
+    public int getOpcode() {
+        return opcode;
+    }
+    
+//    int regAData;
+//    int regBData;
+//    int immediate;
+//    int[] registers;
+//    char destReg;
+//    boolean useImmediate;
+//    boolean isControl;
+//    boolean memRead;
+//    boolean memWrite;
+//    boolean wrSource;
+
     
     int getIntRegister(int regNum) {
         // todo - add supporting code
-        return 0;
+        return registers[regNum];
     }
+    
+    void setRegister(int regNum, )
 
     public void update() {
     }

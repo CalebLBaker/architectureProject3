@@ -23,5 +23,7 @@ public class ProgramCounter {
   }
 
   public void update() {
+    ExMemStage exMem = simulator.getExMemStage();
+    pc = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
   }
 }

@@ -9,8 +9,8 @@ public class MemWbStage {
     int opcode;
     int aluIntData; //aluResult
     int loadIntData;//mem result
-    char DestReg; //DestinationReg
-    int wbSource; //ALU or memory
+    int DestReg; //DestinationReg
+    boolean isLoad; //ALU or memory (1 = memory, 0 = load)
     
 
     public MemWbStage(PipelineSimulator sim) {
@@ -22,5 +22,18 @@ public class MemWbStage {
     }
 
     public void update() {
+        ExMemStage ExMem = simulator.getExMemStage();
+        ExMem.update();
+        
+        halted = ExMem.getHalted();
+        shouldWriteback = ExMem.getshouldWriteback();
+        instPC = ExMem.getinstPC();
+        aluIntData = ExMem.getAluIntData();
+        DestReg = ExMem.getDestReg();
+        isLoad = ExMem.getWbSource();
+        
+        if (shouldWriteback) {
+            
+        }
     }
 }

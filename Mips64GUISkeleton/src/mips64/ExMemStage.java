@@ -47,7 +47,7 @@ public class ExMemStage {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    char getDestReg() {
+    int getDestReg() {
         return destReg;
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

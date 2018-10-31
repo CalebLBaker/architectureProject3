@@ -25,8 +25,9 @@ public class IfIdStage {
 
   public void update() {
     ProgramCounter pc = simulator.getPCStage();
+    ExMemStage exMem = simulator.getExMemStage();
     inst = simulator.getMemory().getInstAtAddr(pc.getPC());
-    instPC = pc.getPC();
+    instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc.getPC() + 4;
     opcode = inst.getOpcode();
   }
 }

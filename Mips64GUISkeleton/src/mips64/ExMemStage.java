@@ -23,6 +23,10 @@ public class ExMemStage {
     public void update() {
     }
 
+    boolean getBranchTaken() {
+        return branchTaken;
+    }
+    
     boolean getHalted() {
         return halted;
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

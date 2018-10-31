@@ -9,6 +9,7 @@ public class IdExStage {
     int regAData;
     int regBData;
     int immediate;
+    int[] registers;
     char destReg;
     boolean useImmediate;
     boolean isControl;
@@ -18,8 +19,17 @@ public class IdExStage {
 
     public IdExStage(PipelineSimulator sim) {
         simulator = sim;
+        registers = new int[16];
     }
 
+    public void setRegister(char regNum, int value) {
+        registers[regNum] = value;
+    }
+    
+    public int getRegister(char regNum) {
+        return registers[regNum];
+    }
+    
     int getIntRegister(int regNum) {
         // todo - add supporting code
         return 0;

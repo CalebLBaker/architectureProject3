@@ -9,7 +9,7 @@ public class MemWbStage {
     int opcode;
     int aluIntData; //aluResult
     int loadIntData;//mem result
-    int DestReg; //DestinationReg
+    char DestReg; //DestinationReg
     int wbSource; //ALU or memory
     
 

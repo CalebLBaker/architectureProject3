@@ -16,6 +16,7 @@ public class IdExStage {
     boolean memRead;
     boolean memWrite;
     boolean wbSource;
+    boolean halted;
 
     public IdExStage(PipelineSimulator sim) {
         simulator = sim;
@@ -80,7 +81,7 @@ public class IdExStage {
     }
     
     void setRegister(int regNum, int data) {
-		register[regNum] = data;
+		registers[regNum] = data;
 	}
 
     public void update() {

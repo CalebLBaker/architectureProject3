@@ -9,7 +9,7 @@ public class MemWbStage {
     int opcode;
     int aluIntData; //aluResult
     int loadIntData;//mem result
-    char DestReg; //DestinationReg
+    int DestReg; //DestinationReg
     boolean isLoad; //ALU or memory (1 = memory, 0 = load)
     
 
@@ -27,7 +27,7 @@ public class MemWbStage {
         halted = ExMem.getHalted();
         shouldWriteback = ExMem.getShouldWriteback();
         instPC = ExMem.getInstPC();
-		opcode = ExMem.getOpcode();
+        opcode = ExMem.getOpcode();
         aluIntData = ExMem.getAluIntData();
         DestReg = ExMem.getDestReg();
         isLoad = ExMem.getMemRead();
@@ -35,7 +35,7 @@ public class MemWbStage {
 			loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
 		}
 		else if (ExMem.getMemWrite()) {
-			simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getRegBData());
+			simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
 		}
         
         if (halted) {

@@ -8,8 +8,8 @@ public class ExMemStage {
     int instPC;
     int opcode;
     int aluIntData;
-    int regBData;
-    char destReg;
+    int storeIntData;
+    int destReg;
     boolean memRead;
     boolean memWrite;
     boolean branchTaken;
@@ -19,12 +19,12 @@ public class ExMemStage {
     }
 
     public void update() {
-		idEx = simulator.getIdExStage();
+		IdExStage idEx = simulator.getIdExStage();
 		halted = idEx.getHalted();
 		shouldWriteback = idEx.getShouldWriteback();
 		instPC = idEx.getInstPC();
 		opcode = idEx.getOpcode();
-		regBData = idEx.getRegBData();
+		storeIntData = idEx.getRegBData();
 		destReg = idEx.getDestReg();
 		memRead = idEx.getMemRead();
 		memWrite = idEx.getMemWrite();
@@ -47,48 +47,48 @@ public class ExMemStage {
 				break;
 			}
 			case (Instruction.INST_ADD) : {
-				aluIntData = regAData + regBData;
+				aluIntData = regAData + storeIntData;
 				break;
 			}
 			case (Instruction.INST_SUB) : {
-				aluIntData = regAData - regBData;
+				aluIntData = regAData - storeIntData;
 				break;
 			}
 			case (Instruction.INST_MUL) : {
-				aluIntData = regAData * regBData;
+				aluIntData = regAData * storeIntData;
 				break;
 			}
 			case (Instruction.INST_DIV) : {
-				aluIntData = regAData / regBData;
+				aluIntData = regAData / storeIntData;
 				break;
 			}
 			case (Instruction.INST_AND) : {
-				aluIntData = regAData & regBData;
+				aluIntData = regAData & storeIntData;
 				break;
 			}
 			case (Instruction.INST_OR) : {
-				aluIntData = regAData | regBData;
+				aluIntData = regAData | storeIntData;
 				break;
 			}
 			case (Instruction.INST_XOR) : {
-				aluIntData = regAData ^ regBData;
+				aluIntData = regAData ^ storeIntData;
 				break;
 			}
 			case (Instruction.INST_SLL) : {
-				aluIntData = regAData << regBData;
+				aluIntData = regAData << storeIntData;
 				break;
 			}
 			case (Instruction.INST_SRL) : {
-				aluIntData = regAData >> regBData;
+				aluIntData = regAData >> storeIntData;
 				break;
 			}
 			case (Instruction.INST_SRA) : {
-				aluIntData = (int)(((long)regAData) >> regBData);
+				aluIntData = (int)(((long)regAData) >> storeIntData);
 				break;
 			}
 			case (Instruction.INST_JR) :
 			case (Instruction.INST_JALR) : {
-				aluIntData = instPC + regBData;
+				aluIntData = instPC + storeIntData;
 				break;
 			}
 			default : {
@@ -97,8 +97,8 @@ public class ExMemStage {
 		}
 		branchTaken = opcode == Instruction.INST_JR || opcode == Instruction.INST_JALR
 				   || opcode == Instruction.INST_J || opcode == Instruction.INST_JAL
-				   || opcode == Instruction.INST_BEQ && regAData == regBData
-				   || opcode == Instruction.INST_BNE && regAData != regBData
+				   || opcode == Instruction.INST_BEQ && regAData == storeIntData
+				   || opcode == Instruction.INST_BNE && regAData != storeIntData
 				   || opcode == Instruction.INST_BLTZ && regAData < 0
 				   || opcode == Instruction.INST_BLEZ && regAData <= 0
 				   || opcode == Instruction.INST_BGTZ && regAData > 0
@@ -126,12 +126,24 @@ public class ExMemStage {
         return aluIntData;
     }
 
-    char getDestReg() {
+    int getDestReg() {
         return destReg;
     }
 
-    boolean getWbSource() {
-        return isLoad;
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    int getOpcode() {
+        return opcode;
     }
+    
+    boolean getMemRead() {
+        return memRead;
+    }
+    
+    boolean getMemWrite() {
+        return memWrite;
+    }
+    
+    int getStoreIntData() {
+        return storeIntData;
+    }
+    
 }

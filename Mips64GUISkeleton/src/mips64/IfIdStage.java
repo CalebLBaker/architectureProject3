@@ -27,7 +27,7 @@ public class IfIdStage {
     ProgramCounter pc = simulator.getPCStage();
     inst = simulator.getMemory().getInstAtAddr(pc.getPC());
     opcode = inst.getOpcode();
-	pc.update();
+    pc.update();
     instPC = pc.getPC();
   }
 }

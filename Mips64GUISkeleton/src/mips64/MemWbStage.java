@@ -23,7 +23,7 @@ public class MemWbStage {
 
     public void update() {
         ExMemStage ExMem = simulator.getExMemStage();
-        
+        ExMem.update();
         halted = ExMem.getHalted();
         shouldWriteback = ExMem.getShouldWriteback();
         instPC = ExMem.getInstPC();
@@ -31,12 +31,12 @@ public class MemWbStage {
         aluIntData = ExMem.getAluIntData();
         DestReg = ExMem.getDestReg();
         isLoad = ExMem.getMemRead();
-		if (isLoad) {
-			loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
-		}
-		else if (ExMem.getMemWrite()) {
-			simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
-		}
+    	if (isLoad) {
+            loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
+    	}
+    	else if (ExMem.getMemWrite()) {
+            simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
+    	}
         
         if (halted) {
             //halt the program
@@ -52,6 +52,5 @@ public class MemWbStage {
                 simulator.getIdExStage().setRegister(DestReg, aluIntData);
             }
         }
-        ExMem.update();
     }
 }

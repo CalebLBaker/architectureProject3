@@ -4,23 +4,21 @@ public class IdExStage {
 
     PipelineSimulator simulator;
     boolean shouldWriteback = false;
-    int instPC;
-    int opcode;
-    int regAData;
-    int regBData;
-    int immediate;
-    int[] registers;
-    int destReg;
-    boolean useImmediate;
-    boolean isControl;
-    boolean memRead;
-    boolean memWrite;
-    boolean wbSource;
-    boolean halted;
+    int instPC = 0;
+    int opcode = Instruction.INST_NOP;
+    int regAData = 0;
+    int regBData = 0;
+    int immediate = 0;
+    int[] registers = new int[32];
+    int destReg = 1;
+    boolean useImmediate = true;
+    boolean isControl = false;
+    boolean memRead = false;
+    boolean memWrite = false;
+    boolean halted = false;
 
     public IdExStage(PipelineSimulator sim) {
         simulator = sim;
-        registers = new int[32];
     }
     
     public boolean getShouldWriteback() {
@@ -67,10 +65,6 @@ public class IdExStage {
     	return memWrite;
     }
 
-    public boolean getWbSource() {
-    	return wbSource;
-    }
-
     public boolean getHalted() {
     	return halted;
     }
@@ -86,8 +80,6 @@ public class IdExStage {
 
     public void update() {
     	IfIdStage ifId = simulator.getIfIdStage();
-        ifId.update();
-    	instPC = ifId.getInstPC();
     	opcode = ifId.getOpcode();
     	Instruction inst = ifId.getInst();
     	if (inst instanceof ITypeInst) {
@@ -111,7 +103,7 @@ public class IdExStage {
             shouldWriteback = false;
             immediate = ((JTypeInst)inst).getOffset();
             useImmediate = true;
-            isControl = true;
+            isControl = opcode != Instruction.INST_NOP;
             memRead = false;
             memWrite = false;
             halted = opcode == Instruction.INST_HALT;;

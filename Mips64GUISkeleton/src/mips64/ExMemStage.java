@@ -3,16 +3,16 @@ package mips64;
 public class ExMemStage {
 
     PipelineSimulator simulator;
-    boolean halted;
+    boolean halted = false;
     boolean shouldWriteback = false;
-    int instPC;
-    int opcode;
-    int aluIntData;
-    int storeIntData;
-    int destReg;
-    boolean memRead;
-    boolean memWrite;
-    boolean branchTaken;
+    int instPC = 0;
+    int opcode = Instruction.INST_NOP;
+    int aluIntData = 0;
+    int storeIntData = 0;
+    int destReg = 1;
+    boolean memRead = false;
+    boolean memWrite = false;
+    boolean branchTaken = false;
 
     public ExMemStage(PipelineSimulator sim) {
         simulator = sim;
@@ -20,7 +20,6 @@ public class ExMemStage {
 
     public void update() {
     	IdExStage idEx = simulator.getIdExStage();
-        idEx.update();
     	halted = idEx.getHalted();
     	shouldWriteback = idEx.getShouldWriteback();
     	instPC = idEx.getInstPC();

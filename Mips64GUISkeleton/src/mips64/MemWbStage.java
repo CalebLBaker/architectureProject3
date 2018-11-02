@@ -3,14 +3,14 @@ package mips64;
 public class MemWbStage {
 
     PipelineSimulator simulator;
-    boolean halted;
+    boolean halted = false;
     boolean shouldWriteback = false; //doesWB
-    int instPC;
-    int opcode;
-    int aluIntData; //aluResult
-    int loadIntData;//mem result
-    int DestReg; //DestinationReg
-    boolean isLoad; //ALU or memory (1 = memory, 0 = load)
+    int instPC = 0;
+    int opcode = Instruction.INST_NOP;
+    int aluIntData = 0; //aluResult
+    int loadIntData = 0;//mem result
+    int DestReg = 1; //DestinationReg
+    boolean isLoad = false; //ALU or memory (1 = memory, 0 = load)
     
 
     public MemWbStage(PipelineSimulator sim) {
@@ -22,8 +22,19 @@ public class MemWbStage {
     }
 
     public void update() {
+        
+        if (shouldWriteback) {
+            if (isLoad) {
+                //memory operation
+                simulator.getIdExStage().setRegister(DestReg, loadIntData);
+            }
+            else {
+                //ALU operation
+                simulator.getIdExStage().setRegister(DestReg, aluIntData);
+            }
+        }
+        
         ExMemStage ExMem = simulator.getExMemStage();
-        ExMem.update();
         halted = ExMem.getHalted();
         shouldWriteback = ExMem.getShouldWriteback();
         instPC = ExMem.getInstPC();
@@ -37,20 +48,5 @@ public class MemWbStage {
     	else if (ExMem.getMemWrite()) {
             simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
     	}
-        
-        if (halted) {
-            //halt the program
-        }
-        
-        if (shouldWriteback) {
-            if (isLoad) {
-                //memory operation
-                simulator.getIdExStage().setRegister(DestReg, loadIntData);
-            }
-            else {
-                //ALU operation
-                simulator.getIdExStage().setRegister(DestReg, aluIntData);
-            }
-        }
     }
 }

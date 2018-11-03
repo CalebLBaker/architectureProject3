@@ -52,6 +52,11 @@ public class ITypeInst
     newInst.rs = (oper >> 21) & 0x1f;
     newInst.rt = (oper >> 16) & 0x1f;
     newInst.immed = oper & 0xffff;
+	if ((opcode != Instruction.INST_ANDI)
+                && (opcode != Instruction.INST_ORI)
+                && (opcode != Instruction.INST_XORI)) {
+            newInst.immed = (newInst.immed << 16) >> 16;
+    }
 
     return (Instruction) newInst;
   }

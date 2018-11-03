@@ -30,6 +30,8 @@ public class JTypeInst extends Instruction {
     JTypeInst newInst = new JTypeInst();
     newInst.opcode = opcode;
     newInst.offset = oper & 0x03ffffff;
+    newInst.offset = (newInst.offset << 6) >> 6;
+
     return (Instruction) newInst;
   }
 }

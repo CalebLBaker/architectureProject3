@@ -5,6 +5,7 @@ public class IfIdStage {
   Instruction inst = Instruction.getInstructionFromOper(Instruction.INST_NOP << 26);
   int instPC = 0;
   int opcode = Instruction.INST_NOP;
+  boolean squashed = false;
 
   public IfIdStage(PipelineSimulator sim) {
     simulator = sim;
@@ -21,6 +22,10 @@ public class IfIdStage {
   
   public int getOpcode() {
       return opcode;
+  }
+  
+  boolean getSquashed () {
+      return squashed;
   }
 
   public void update() {

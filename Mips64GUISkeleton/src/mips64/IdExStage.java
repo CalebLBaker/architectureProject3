@@ -8,6 +8,8 @@ public class IdExStage {
     int opcode = Instruction.INST_NOP;
     int regAData = 0;
     int regBData = 0;
+    int regA = 0;
+    int regB = 0;
     int immediate = 0;
     int[] registers = new int[32];
     int destReg = 1;
@@ -31,6 +33,14 @@ public class IdExStage {
     
     public int getOpcode() {
         return opcode;
+    }
+    
+    public int getRegA() {
+        return regA;
+    }
+    
+    public int getRegB() {
+        return regB;
     }
 
     public int getRegAData() {
@@ -81,13 +91,15 @@ public class IdExStage {
     public void update() {
     	IfIdStage ifId = simulator.getIfIdStage();
     	opcode = ifId.getOpcode();
+        instPC = ifId.getInstPC();
     	Instruction inst = ifId.getInst();
     	if (inst instanceof ITypeInst) {
             shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
     			   || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI
     			   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI;
             ITypeInst iType = (ITypeInst)inst;
-            regAData = registers[iType.getRS()];
+            regA = iType.getRS();
+            regAData = registers[regA];
             destReg = iType.getRT();
             regBData = registers[destReg];
             immediate = iType.getImmed();
@@ -111,8 +123,10 @@ public class IdExStage {
     	else {
             shouldWriteback = true;
             RTypeInst rType = (RTypeInst)inst;
-            regAData = registers[rType.getRS()];
-            regBData = registers[rType.getRT()];
+            regA = rType.getRS();
+            regAData = registers[regA];
+            regB = rType.getRT();
+            regBData = registers[regB];
             destReg = rType.getRD();
             useImmediate = false;
             isControl = false;

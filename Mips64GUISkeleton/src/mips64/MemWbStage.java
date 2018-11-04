@@ -2,6 +2,8 @@ package mips64;
 
 public class MemWbStage {
 
+    public static final int NO_FORWARDING = -1;
+    
     PipelineSimulator simulator;
     boolean halted = false;
     boolean shouldWriteback = false; //doesWB
@@ -9,29 +11,56 @@ public class MemWbStage {
     int opcode = Instruction.INST_NOP;
     int aluIntData = 0; //aluResult
     int loadIntData = 0;//mem result
-    int DestReg = 1; //DestinationReg
+    int destReg = 1; //DestinationReg
     boolean isLoad = false; //ALU or memory (1 = memory, 0 = load)
+    
+    
+    // Forwarding stuff
+    int forwardReg = NO_FORWARDING;
+    int forwardData = 0;
     
 
     public MemWbStage(PipelineSimulator sim) {
         simulator = sim;
     }
 
+    public int getDestReg() {
+        return destReg;
+    }
+
+    public int getForwardReg() {
+        return forwardReg;
+    }
+    
+    public int getForwardData() {
+        return forwardData;
+    }
+    
     public boolean isHalted() {
         return halted;
+    }
+    
+    public boolean getShouldWriteback() {
+        return shouldWriteback;
     }
 
     public void update() {
         
         if (shouldWriteback) {
+            forwardReg = destReg;
             if (isLoad) {
                 //memory operation
-                simulator.getIdExStage().setRegister(DestReg, loadIntData);
+                simulator.getIdExStage().setRegister(destReg, loadIntData);
+                forwardData = loadIntData;
             }
             else {
                 //ALU operation
-                simulator.getIdExStage().setRegister(DestReg, aluIntData);
+                simulator.getIdExStage().setRegister(destReg, aluIntData);
+                forwardData = aluIntData;
             }
+        }
+        else {
+            forwardReg = NO_FORWARDING;
         }
         
         ExMemStage ExMem = simulator.getExMemStage();
@@ -40,8 +69,9 @@ public class MemWbStage {
         instPC = ExMem.getInstPC();
         opcode = ExMem.getOpcode();
         aluIntData = ExMem.getAluIntData();
-        DestReg = ExMem.getDestReg();
+        destReg = ExMem.getDestReg();
         isLoad = ExMem.getMemRead();
+        
     	if (isLoad) {
             loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
     	}

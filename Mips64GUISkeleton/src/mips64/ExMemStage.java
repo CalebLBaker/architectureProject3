@@ -13,96 +13,124 @@ public class ExMemStage {
     boolean memRead = false;
     boolean memWrite = false;
     boolean branchTaken = false;
+    boolean interlocked = false;
 
     public ExMemStage(PipelineSimulator sim) {
         simulator = sim;
     }
-
+    
+    public int forward(int reg, int val) {
+        if (shouldWriteback && !memRead && destReg == reg) {
+            return aluIntData;
+        }
+        MemWbStage memWB = simulator.getMemWbStage();
+        if (memWB.getForwardReg() == reg) {
+            return memWB.getForwardData();
+        }
+        return val;
+    }
+    
+    public boolean getInterlocked() {
+        return interlocked;
+    }
+    
     public void update() {
     	IdExStage idEx = simulator.getIdExStage();
-    	halted = idEx.getHalted();
-    	shouldWriteback = idEx.getShouldWriteback();
-    	instPC = idEx.getInstPC();
-    	opcode = idEx.getOpcode();
-    	storeIntData = idEx.getRegBData();
-    	destReg = idEx.getDestReg();
-    	memRead = idEx.getMemRead();
-    	memWrite = idEx.getMemWrite();
-    	int regAData = idEx.getRegAData();
-    	switch (opcode) {
-            case (Instruction.INST_ADDI) : {
-                aluIntData = regAData + idEx.getImmediate();
-    		break;
+        int regA = idEx.getRegA();
+        int regB = idEx.getRegB();
+        if (shouldWriteback && memRead && (destReg == regA || destReg == regB)) {
+            interlocked = true;
+        }
+        else {
+            interlocked = false;
+            storeIntData = forward(regB, idEx.getRegBData());
+            int regAData = forward(regA, idEx.getRegAData());
+            halted = idEx.getHalted();
+            instPC = idEx.getInstPC();
+            opcode = idEx.getOpcode();
+            memWrite = idEx.getMemWrite();
+            memRead = idEx.getMemRead();
+            shouldWriteback = idEx.getShouldWriteback();
+            destReg = idEx.getDestReg();
+            switch (opcode) {
+                case (Instruction.INST_ADDI) : {
+                    aluIntData = regAData + idEx.getImmediate();
+                    break;
+                }
+                case (Instruction.INST_ANDI) : {
+                    aluIntData = regAData & idEx.getImmediate();
+                    break;
+                }
+                case (Instruction.INST_ORI) : {
+                    aluIntData = regAData | idEx.getImmediate();
+                    break;
+                }
+                case (Instruction.INST_XORI) : {
+                    aluIntData = regAData ^ idEx.getImmediate();
+                    break;
+                }
+                case (Instruction.INST_ADD) : {
+                    aluIntData = regAData + storeIntData;
+                    break;
+                }
+                case (Instruction.INST_SUB) : {
+                    aluIntData = regAData - storeIntData;
+                    break;
+                }
+                case (Instruction.INST_MUL) : {
+                    aluIntData = regAData * storeIntData;
+                    break;
+                }
+                case (Instruction.INST_DIV) : {
+                    aluIntData = regAData / storeIntData;
+                    break;
+                }
+                case (Instruction.INST_AND) : {
+                    aluIntData = regAData & storeIntData;
+                    break;
+                }
+                case (Instruction.INST_OR) : {
+                    aluIntData = regAData | storeIntData;
+                    break;
+                }
+                case (Instruction.INST_XOR) : {
+                    aluIntData = regAData ^ storeIntData;
+                    break;
+                }
+                case (Instruction.INST_SLL) : {
+                    aluIntData = regAData << storeIntData;
+                    break;
+                }
+                case (Instruction.INST_SRL) : {
+                    aluIntData = regAData >> storeIntData;
+                    break;
+                }
+                case (Instruction.INST_SRA) : {
+                    aluIntData = (int)(((long)regAData) >> storeIntData);
+                    break;
+                }
+                case (Instruction.INST_JR) :
+                case (Instruction.INST_JALR) : {
+                    aluIntData = instPC + storeIntData;
+                    break;
+                }
+                case (Instruction.INST_LW) :
+                case (Instruction.INST_SW) : {
+                    aluIntData = regAData + idEx.getImmediate();
+                }
+                default : {
+                    aluIntData = instPC + idEx.getImmediate();
+                }
             }
-            case (Instruction.INST_ANDI) : {
-                aluIntData = regAData & idEx.getImmediate();
-    		break;
-            }
-            case (Instruction.INST_ORI) : {
-    		aluIntData = regAData | idEx.getImmediate();
-    		break;
-            }
-            case (Instruction.INST_XORI) : {
-    		aluIntData = regAData ^ idEx.getImmediate();
-    		break;
-            }
-            case (Instruction.INST_ADD) : {
-    		aluIntData = regAData + storeIntData;
-    		break;
-            }
-            case (Instruction.INST_SUB) : {
-    		aluIntData = regAData - storeIntData;
-    		break;
-            }
-            case (Instruction.INST_MUL) : {
-        	aluIntData = regAData * storeIntData;
-    		break;
-            }
-            case (Instruction.INST_DIV) : {
-    		aluIntData = regAData / storeIntData;
-    		break;
-            }
-            case (Instruction.INST_AND) : {
-    		aluIntData = regAData & storeIntData;
-    		break;
-            }
-            case (Instruction.INST_OR) : {
-    		aluIntData = regAData | storeIntData;
-    		break;
-            }
-            case (Instruction.INST_XOR) : {
-    		aluIntData = regAData ^ storeIntData;
-    		break;
-            }
-            case (Instruction.INST_SLL) : {
-    		aluIntData = regAData << storeIntData;
-    		break;
-            }
-            case (Instruction.INST_SRL) : {
-        	aluIntData = regAData >> storeIntData;
-    		break;
-            }
-            case (Instruction.INST_SRA) : {
-    		aluIntData = (int)(((long)regAData) >> storeIntData);
-    		break;
-            }
-            case (Instruction.INST_JR) :
-            case (Instruction.INST_JALR) : {
-    		aluIntData = instPC + storeIntData;
-    		break;
-            }
-            default : {
-    		aluIntData = instPC + idEx.getImmediate();
-            }
-    	}
-    	branchTaken = opcode == Instruction.INST_JR || opcode == Instruction.INST_JALR
-    		   || opcode == Instruction.INST_J || opcode == Instruction.INST_JAL
-    		   || opcode == Instruction.INST_BEQ && regAData == storeIntData
-    		   || opcode == Instruction.INST_BNE && regAData != storeIntData
-    		   || opcode == Instruction.INST_BLTZ && regAData < 0
-    		   || opcode == Instruction.INST_BLEZ && regAData <= 0
-    		   || opcode == Instruction.INST_BGTZ && regAData > 0
-    		   || opcode == Instruction.INST_BGEZ && regAData >= 0;
+            branchTaken = opcode == Instruction.INST_JR || opcode == Instruction.INST_JALR
+                       || opcode == Instruction.INST_J || opcode == Instruction.INST_JAL
+                       || opcode == Instruction.INST_BEQ && regAData == storeIntData
+                       || opcode == Instruction.INST_BNE && regAData != storeIntData
+                       || opcode == Instruction.INST_BLTZ && regAData < 0
+                       || opcode == Instruction.INST_BLEZ && regAData <= 0
+                       || opcode == Instruction.INST_BGTZ && regAData > 0
+                       || opcode == Instruction.INST_BGEZ && regAData >= 0;
+        }
     }
 
     boolean getBranchTaken() {

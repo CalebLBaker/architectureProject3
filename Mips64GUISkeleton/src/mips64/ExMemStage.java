@@ -13,6 +13,7 @@ public class ExMemStage {
     boolean memRead = false;
     boolean memWrite = false;
     boolean branchTaken = false;
+    boolean squashed = false;
 
     public ExMemStage(PipelineSimulator sim) {
         simulator = sim;
@@ -28,6 +29,7 @@ public class ExMemStage {
     	destReg = idEx.getDestReg();
     	memRead = idEx.getMemRead();
     	memWrite = idEx.getMemWrite();
+        squashed = idEx.getSquashed();
     	int regAData = idEx.getRegAData();
     	switch (opcode) {
             case (Instruction.INST_ADDI) : {
@@ -143,6 +145,10 @@ public class ExMemStage {
     
     int getStoreIntData() {
         return storeIntData;
+    }
+    
+    boolean getSquashed () {
+        return squashed;
     }
     
 }

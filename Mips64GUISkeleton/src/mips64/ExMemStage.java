@@ -21,6 +21,7 @@ public class ExMemStage {
 
     public void update() {
     	IdExStage idEx = simulator.getIdExStage();
+        IfIdStage ifId = simulator.getIfIdStage();
     	halted = idEx.getHalted();
     	shouldWriteback = idEx.getShouldWriteback();
     	instPC = idEx.getInstPC();
@@ -105,6 +106,12 @@ public class ExMemStage {
     		   || opcode == Instruction.INST_BLEZ && regAData <= 0
     		   || opcode == Instruction.INST_BGTZ && regAData > 0
     		   || opcode == Instruction.INST_BGEZ && regAData >= 0;
+        
+        if (branchTaken) {
+            idEx.setSquashed(true);
+            ifId.setSquashed(true);
+            squashed = true;
+        }
     }
 
     boolean getBranchTaken() {

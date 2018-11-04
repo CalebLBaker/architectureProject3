@@ -79,6 +79,10 @@ public class IdExStage {
         return squashed;
     }
     
+    void setSquashed (boolean x) {
+        squashed = x;
+    }
+    
     void setRegister(int regNum, int data) {
     	registers[regNum] = data;
     }

@@ -118,6 +118,7 @@ public class ExMemStage {
                 case (Instruction.INST_LW) :
                 case (Instruction.INST_SW) : {
                     aluIntData = regAData + idEx.getImmediate();
+                    break;
                 }
                 default : {
                     aluIntData = instPC + idEx.getImmediate();
@@ -131,12 +132,11 @@ public class ExMemStage {
                        || opcode == Instruction.INST_BLEZ && regAData <= 0
                        || opcode == Instruction.INST_BGTZ && regAData > 0
                        || opcode == Instruction.INST_BGEZ && regAData >= 0;
-			if (branchTaken) {
-				idEx.setSquashed(true);
-				ifId.setSquashed(true);
-				squashed = true;
-			}
-		}
+            if (branchTaken) {
+                idEx.setSquashed(true);
+		simulator.getIfIdStage().setSquashed(true);
+            }
+	}
     }
 
     boolean getBranchTaken() {

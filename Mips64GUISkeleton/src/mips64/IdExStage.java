@@ -13,8 +13,6 @@ public class IdExStage {
     int immediate = 0;
     int[] registers = new int[32];
     int destReg = 1;
-    boolean useImmediate = true;
-    boolean isControl = false;
     boolean memRead = false;
     boolean memWrite = false;
     boolean halted = false;
@@ -60,14 +58,6 @@ public class IdExStage {
     	return destReg;
     }
 
-    public boolean getUseImmediate() {
-    	return useImmediate;
-    }
-
-    public boolean getIsControl() {
-    	return isControl;
-    }
-
     public boolean getMemRead() {
     	return memRead;
     }
@@ -98,53 +88,49 @@ public class IdExStage {
     }
 
     public void update() {
-    	IfIdStage ifId = simulator.getIfIdStage();
-    	opcode = ifId.getOpcode();
-        instPC = ifId.getInstPC();
-    	Instruction inst = ifId.getInst();
-        squashed = ifId.getSquashed();
-        if (!squashed) {
-            if (inst instanceof ITypeInst) {
-                shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
-    			   || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI
-    			   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI;
-				ITypeInst iType = (ITypeInst)inst;
-				regA = iType.getRS();
-				regAData = registers[regA];
-				destReg = iType.getRT();
-				regBData = registers[destReg];
-				immediate = iType.getImmed();
-				useImmediate = true;
-				isControl = opcode != Instruction.INST_LW && opcode != Instruction.INST_SW
-						 && opcode != Instruction.INST_ADDI && opcode != Instruction.INST_ANDI
-						 && opcode != Instruction.INST_ORI && opcode != Instruction.INST_XORI;
-				memRead = opcode == Instruction.INST_LW;
-				memWrite = opcode == Instruction.INST_SW;
-				halted = false;
-			}
-			else if (inst instanceof JTypeInst) {
-				shouldWriteback = false;
-				immediate = ((JTypeInst)inst).getOffset();
-				useImmediate = true;
-				isControl = opcode != Instruction.INST_NOP;
-				memRead = false;
-				memWrite = false;
-				halted = opcode == Instruction.INST_HALT;;
-			}
-			else {
-				shouldWriteback = true;
-				RTypeInst rType = (RTypeInst)inst;
-				regA = rType.getRS();
-				regAData = registers[regA];
-				regB = rType.getRT();
-				regBData = registers[regB];
-				destReg = rType.getRD();
-				useImmediate = false;
-				isControl = false;
-				memRead = false;
-				memWrite = false;
-				halted = false;
-			}
+        if (!simulator.getExMemStage().getInterlocked()) {
+            IfIdStage ifId = simulator.getIfIdStage();
+            opcode = ifId.getOpcode();
+            instPC = ifId.getInstPC();
+            Instruction inst = ifId.getInst();
+            squashed = ifId.getSquashed();
+            if (!squashed) {
+                if (inst instanceof ITypeInst) {
+                    shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
+                                   || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI
+                                   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI
+                                   || opcode == Instruction.INST_SLL || opcode == Instruction.INST_SRL
+                                   || opcode == Instruction.INST_SRA;
+                    ITypeInst iType = (ITypeInst)inst;
+                    regA = iType.getRS();
+                    regAData = registers[regA];
+                    destReg = iType.getRT();
+                    regBData = registers[destReg];
+                    immediate = iType.getImmed();
+                    memRead = opcode == Instruction.INST_LW;
+                    memWrite = opcode == Instruction.INST_SW;
+                    halted = false;
+                }
+                else if (inst instanceof JTypeInst) {
+                    shouldWriteback = false;
+                    immediate = ((JTypeInst)inst).getOffset();
+                    memRead = false;
+                    memWrite = false;
+                    halted = opcode == Instruction.INST_HALT;;
+                }
+                else {
+                    shouldWriteback = true;
+                    RTypeInst rType = (RTypeInst)inst;
+                    regA = rType.getRS();
+                    regAData = registers[regA];
+                    regB = rType.getRT();
+                    regBData = registers[regB];
+                    destReg = rType.getRD();
+                    memRead = false;
+                    memWrite = false;
+                    halted = false;
+                }
+            }
         }
     }
 }

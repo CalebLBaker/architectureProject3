@@ -46,39 +46,27 @@ public class MemWbStage {
     }
 
     public void update() {
-        squashed = simulator.getExMemStage().getSquashed();
         
-        if (!squashed) {
-        
-            if (shouldWriteback) {
-		forwardReg = destReg;
-                if (isLoad) {
-                    //memory operation
-                    simulator.getIdExStage().setRegister(destReg, loadIntData);
-                    forwardData = loadIntData;
-		}
-		else {
-                    //ALU operation
-                    simulator.getIdExStage().setRegister(destReg, aluIntData);
-                    forwardData = aluIntData;
-		}
+        if (shouldWriteback && !squashed) {
+            forwardReg = destReg;
+            if (isLoad) {
+                //memory operation
+                simulator.getIdExStage().setRegister(destReg, loadIntData);
+                forwardData = loadIntData;
             }
             else {
-		forwardReg = NO_FORWARDING;
+                //ALU operation
+                simulator.getIdExStage().setRegister(destReg, aluIntData);
+                forwardData = aluIntData;
             }
+        }
+        else {
+            forwardReg = NO_FORWARDING;
+        }
         
-            if (shouldWriteback) {
-                if (isLoad) {
-                    //memory operation
-                    simulator.getIdExStage().setRegister(destReg, loadIntData);
-                }
-                else {
-                    //ALU operation
-                    simulator.getIdExStage().setRegister(destReg, aluIntData);
-                }
-            }
-        
-            ExMemStage ExMem = simulator.getExMemStage();
+        ExMemStage ExMem = simulator.getExMemStage();
+        squashed = ExMem.getSquashed() || ExMem.getInterlocked();
+        if (!squashed) {
             halted = ExMem.getHalted();
             shouldWriteback = ExMem.getShouldWriteback();
             instPC = ExMem.getInstPC();

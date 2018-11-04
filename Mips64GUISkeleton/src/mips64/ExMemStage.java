@@ -39,7 +39,7 @@ public class ExMemStage {
     	IdExStage idEx = simulator.getIdExStage();
         int regA = idEx.getRegA();
         int regB = idEx.getRegB();
-        if (shouldWriteback && memRead && (destReg == regA || destReg == regB)) {
+        if (shouldWriteback && memRead && !squashed && !interlocked && (destReg == regA || destReg == regB)) {
             interlocked = true;
         }
         else {
@@ -53,6 +53,7 @@ public class ExMemStage {
             memRead = idEx.getMemRead();
             shouldWriteback = idEx.getShouldWriteback();
             destReg = idEx.getDestReg();
+            squashed = idEx.getSquashed();
             switch (opcode) {
                 case (Instruction.INST_ADDI) : {
                     aluIntData = regAData + idEx.getImmediate();
@@ -99,15 +100,15 @@ public class ExMemStage {
                     break;
                 }
                 case (Instruction.INST_SLL) : {
-                    aluIntData = regAData << storeIntData;
+                    aluIntData = regAData << idEx.getImmediate();
                     break;
                 }
                 case (Instruction.INST_SRL) : {
-                    aluIntData = regAData >> storeIntData;
+                    aluIntData = regAData >> idEx.getImmediate();
                     break;
                 }
                 case (Instruction.INST_SRA) : {
-                    aluIntData = (int)(((long)regAData) >> storeIntData);
+                    aluIntData = (int)(((long)regAData) >> idEx.getImmediate());
                     break;
                 }
                 case (Instruction.INST_JR) :
@@ -132,7 +133,7 @@ public class ExMemStage {
                        || opcode == Instruction.INST_BLEZ && regAData <= 0
                        || opcode == Instruction.INST_BGTZ && regAData > 0
                        || opcode == Instruction.INST_BGEZ && regAData >= 0;
-            if (branchTaken) {
+            if (branchTaken && !squashed) {
                 idEx.setSquashed(true);
 		simulator.getIfIdStage().setSquashed(true);
             }

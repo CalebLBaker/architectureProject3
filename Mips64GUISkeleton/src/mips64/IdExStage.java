@@ -16,6 +16,7 @@ public class IdExStage {
     boolean memRead = false;
     boolean memWrite = false;
     boolean halted = false;
+    boolean squashed = false;
 
     public IdExStage(PipelineSimulator sim) {
         simulator = sim;
@@ -74,6 +75,10 @@ public class IdExStage {
         return registers[regNum];
     }
     
+    boolean getSquashed() {
+        return squashed;
+    }
+    
     void setRegister(int regNum, int data) {
     	registers[regNum] = data;
     }
@@ -82,6 +87,7 @@ public class IdExStage {
     	IfIdStage ifId = simulator.getIfIdStage();
     	opcode = ifId.getOpcode();
     	Instruction inst = ifId.getInst();
+        squashed = ifId.getSquashed();
     	if (inst instanceof ITypeInst) {
             shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
     			   || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI

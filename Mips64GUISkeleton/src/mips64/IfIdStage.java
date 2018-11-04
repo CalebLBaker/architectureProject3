@@ -27,6 +27,10 @@ public class IfIdStage {
   boolean getSquashed () {
       return squashed;
   }
+  
+  void setSquashed (boolean x) {
+      squashed = x;
+  }
 
   public void update() {
     int pc = simulator.getPCStage().getPC();

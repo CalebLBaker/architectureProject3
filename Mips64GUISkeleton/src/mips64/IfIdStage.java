@@ -33,10 +33,12 @@ public class IfIdStage {
   }
 
   public void update() {
-    int pc = simulator.getPCStage().getPC();
-    inst = simulator.getMemory().getInstAtAddr(pc);
-    opcode = inst.getOpcode();
-    ExMemStage exMem = simulator.getExMemStage();
-    instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
+    if (!squashed) {
+        int pc = simulator.getPCStage().getPC();
+        inst = simulator.getMemory().getInstAtAddr(pc);
+        opcode = inst.getOpcode();
+        ExMemStage exMem = simulator.getExMemStage();
+        instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
+    }
   }
 }

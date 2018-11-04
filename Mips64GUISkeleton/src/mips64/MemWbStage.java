@@ -13,6 +13,7 @@ public class MemWbStage {
     int loadIntData = 0;//mem result
     int destReg = 1; //DestinationReg
     boolean isLoad = false; //ALU or memory (1 = memory, 0 = load)
+    boolean squashed = false;
     
     
     // Forwarding stuff
@@ -45,38 +46,52 @@ public class MemWbStage {
     }
 
     public void update() {
+        squashed = simulator.getExMemStage().getSquashed();
         
-        if (shouldWriteback) {
-            forwardReg = destReg;
+        if (!squashed) {
+        
+			if (shouldWriteback) {
+				forwardReg = destReg;
+				if (isLoad) {
+					//memory operation
+					simulator.getIdExStage().setRegister(destReg, loadIntData);
+					forwardData = loadIntData;
+				}
+				else {
+					//ALU operation
+					simulator.getIdExStage().setRegister(destReg, aluIntData);
+					forwardData = aluIntData;
+				}
+			}
+			else {
+				forwardReg = NO_FORWARDING;
+			}
+        
+            if (shouldWriteback) {
+                if (isLoad) {
+                    //memory operation
+                    simulator.getIdExStage().setRegister(DestReg, loadIntData);
+                }
+                else {
+                    //ALU operation
+                    simulator.getIdExStage().setRegister(DestReg, aluIntData);
+                }
+            }
+        
+            ExMemStage ExMem = simulator.getExMemStage();
+            halted = ExMem.getHalted();
+            shouldWriteback = ExMem.getShouldWriteback();
+            instPC = ExMem.getInstPC();
+            opcode = ExMem.getOpcode();
+            aluIntData = ExMem.getAluIntData();
+            DestReg = ExMem.getDestReg();
+            isLoad = ExMem.getMemRead();
             if (isLoad) {
-                //memory operation
-                simulator.getIdExStage().setRegister(destReg, loadIntData);
-                forwardData = loadIntData;
+                loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
             }
-            else {
-                //ALU operation
-                simulator.getIdExStage().setRegister(destReg, aluIntData);
-                forwardData = aluIntData;
+            else if (ExMem.getMemWrite()) {
+                simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
             }
         }
-        else {
-            forwardReg = NO_FORWARDING;
-        }
-        
-        ExMemStage ExMem = simulator.getExMemStage();
-        halted = ExMem.getHalted();
-        shouldWriteback = ExMem.getShouldWriteback();
-        instPC = ExMem.getInstPC();
-        opcode = ExMem.getOpcode();
-        aluIntData = ExMem.getAluIntData();
-        destReg = ExMem.getDestReg();
-        isLoad = ExMem.getMemRead();
-        
-    	if (isLoad) {
-            loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
-    	}
-    	else if (ExMem.getMemWrite()) {
-            simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
-    	}
     }
 }

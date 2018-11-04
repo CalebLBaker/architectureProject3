@@ -18,6 +18,7 @@ public class IdExStage {
     boolean memRead = false;
     boolean memWrite = false;
     boolean halted = false;
+    boolean squashed = false;
 
     public IdExStage(PipelineSimulator sim) {
         simulator = sim;
@@ -84,6 +85,14 @@ public class IdExStage {
         return registers[regNum];
     }
     
+    boolean getSquashed() {
+        return squashed;
+    }
+    
+    void setSquashed (boolean x) {
+        squashed = x;
+    }
+    
     void setRegister(int regNum, int data) {
     	registers[regNum] = data;
     }
@@ -93,46 +102,49 @@ public class IdExStage {
     	opcode = ifId.getOpcode();
         instPC = ifId.getInstPC();
     	Instruction inst = ifId.getInst();
-    	if (inst instanceof ITypeInst) {
-            shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
+        squashed = ifId.getSquashed();
+        if (!squashed) {
+            if (inst instanceof ITypeInst) {
+                shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
     			   || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI
     			   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI;
-            ITypeInst iType = (ITypeInst)inst;
-            regA = iType.getRS();
-            regAData = registers[regA];
-            destReg = iType.getRT();
-            regBData = registers[destReg];
-            immediate = iType.getImmed();
-            useImmediate = true;
-            isControl = opcode != Instruction.INST_LW && opcode != Instruction.INST_SW
-                     && opcode != Instruction.INST_ADDI && opcode != Instruction.INST_ANDI
-                     && opcode != Instruction.INST_ORI && opcode != Instruction.INST_XORI;
-            memRead = opcode == Instruction.INST_LW;
-            memWrite = opcode == Instruction.INST_SW;
-            halted = false;
-    	}
-    	else if (inst instanceof JTypeInst) {
-            shouldWriteback = false;
-            immediate = ((JTypeInst)inst).getOffset();
-            useImmediate = true;
-            isControl = opcode != Instruction.INST_NOP;
-            memRead = false;
-            memWrite = false;
-            halted = opcode == Instruction.INST_HALT;;
-    	}
-    	else {
-            shouldWriteback = true;
-            RTypeInst rType = (RTypeInst)inst;
-            regA = rType.getRS();
-            regAData = registers[regA];
-            regB = rType.getRT();
-            regBData = registers[regB];
-            destReg = rType.getRD();
-            useImmediate = false;
-            isControl = false;
-            memRead = false;
-            memWrite = false;
-            halted = false;
-    	}
+				ITypeInst iType = (ITypeInst)inst;
+				regA = iType.getRS();
+				regAData = registers[regA];
+				destReg = iType.getRT();
+				regBData = registers[destReg];
+				immediate = iType.getImmed();
+				useImmediate = true;
+				isControl = opcode != Instruction.INST_LW && opcode != Instruction.INST_SW
+						 && opcode != Instruction.INST_ADDI && opcode != Instruction.INST_ANDI
+						 && opcode != Instruction.INST_ORI && opcode != Instruction.INST_XORI;
+				memRead = opcode == Instruction.INST_LW;
+				memWrite = opcode == Instruction.INST_SW;
+				halted = false;
+			}
+			else if (inst instanceof JTypeInst) {
+				shouldWriteback = false;
+				immediate = ((JTypeInst)inst).getOffset();
+				useImmediate = true;
+				isControl = opcode != Instruction.INST_NOP;
+				memRead = false;
+				memWrite = false;
+				halted = opcode == Instruction.INST_HALT;;
+			}
+			else {
+				shouldWriteback = true;
+				RTypeInst rType = (RTypeInst)inst;
+				regA = rType.getRS();
+				regAData = registers[regA];
+				regB = rType.getRT();
+				regBData = registers[regB];
+				destReg = rType.getRD();
+				useImmediate = false;
+				isControl = false;
+				memRead = false;
+				memWrite = false;
+				halted = false;
+			}
+        }
     }
 }

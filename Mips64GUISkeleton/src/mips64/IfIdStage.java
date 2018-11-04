@@ -5,6 +5,7 @@ public class IfIdStage {
   Instruction inst = Instruction.getInstructionFromOper(Instruction.INST_NOP << 26);
   int instPC = 0;
   int opcode = Instruction.INST_NOP;
+  boolean squashed = false;
 
   public IfIdStage(PipelineSimulator sim) {
     simulator = sim;
@@ -22,12 +23,22 @@ public class IfIdStage {
   public int getOpcode() {
       return opcode;
   }
+  
+  boolean getSquashed () {
+      return squashed;
+  }
+  
+  void setSquashed (boolean x) {
+      squashed = x;
+  }
 
   public void update() {
-    int pc = simulator.getPCStage().getPC();
-    inst = simulator.getMemory().getInstAtAddr(pc);
-    opcode = inst.getOpcode();
-    ExMemStage exMem = simulator.getExMemStage();
-    instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
+    if (!squashed) {
+        int pc = simulator.getPCStage().getPC();
+        inst = simulator.getMemory().getInstAtAddr(pc);
+        opcode = inst.getOpcode();
+        ExMemStage exMem = simulator.getExMemStage();
+        instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
+    }
   }
 }

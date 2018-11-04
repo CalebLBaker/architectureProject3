@@ -14,6 +14,7 @@ public class ExMemStage {
     boolean memWrite = false;
     boolean branchTaken = false;
     boolean interlocked = false;
+    boolean squashed = false;
 
     public ExMemStage(PipelineSimulator sim) {
         simulator = sim;
@@ -130,7 +131,12 @@ public class ExMemStage {
                        || opcode == Instruction.INST_BLEZ && regAData <= 0
                        || opcode == Instruction.INST_BGTZ && regAData > 0
                        || opcode == Instruction.INST_BGEZ && regAData >= 0;
-        }
+			if (branchTaken) {
+				idEx.setSquashed(true);
+				ifId.setSquashed(true);
+				squashed = true;
+			}
+		}
     }
 
     boolean getBranchTaken() {
@@ -171,6 +177,10 @@ public class ExMemStage {
     
     int getStoreIntData() {
         return storeIntData;
+    }
+    
+    boolean getSquashed () {
+        return squashed;
     }
     
 }

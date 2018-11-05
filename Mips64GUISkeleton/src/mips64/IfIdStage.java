@@ -6,6 +6,7 @@ public class IfIdStage {
     int instPC = 0;
     int opcode = Instruction.INST_NOP;
     boolean squashed = false;
+    boolean squashNext = false;
 
     public IfIdStage(PipelineSimulator sim) {
         simulator = sim;
@@ -28,8 +29,9 @@ public class IfIdStage {
         return squashed;
     }
   
-    void setSquashed (boolean x) {
-        squashed = x;
+    void squash () {
+        squashed = true;
+        squashNext = true;
     }
 
     public void update() {
@@ -39,7 +41,8 @@ public class IfIdStage {
             opcode = inst.getOpcode();
             ExMemStage exMem = simulator.getExMemStage();
             instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
-            squashed = false;
+            squashed = squashNext;
+            squashNext = false;
         }
     }
 }

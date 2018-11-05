@@ -14,12 +14,14 @@ public class MemWbStage {
     int destReg = 1; //DestinationReg
     boolean isLoad = false; //ALU or memory (1 = memory, 0 = load)
     boolean squashed = false;
+    boolean jal;
     
     
     // Forwarding stuff
     int forwardReg = NO_FORWARDING;
     int forwardData = 0;
     
+    static final int RETURN_ADDRESS_REG = 31;
 
     public MemWbStage(PipelineSimulator sim) {
         simulator = sim;
@@ -38,7 +40,7 @@ public class MemWbStage {
     }
     
     public boolean isHalted() {
-        return halted;
+        return halted && !squashed;
     }
     
     public boolean getShouldWriteback() {
@@ -60,6 +62,11 @@ public class MemWbStage {
                 forwardData = aluIntData;
             }
         }
+        else if (jal && !squashed) {
+            forwardReg = RETURN_ADDRESS_REG;
+            forwardData = instPC;
+            simulator.getIdExStage().setRegister(RETURN_ADDRESS_REG, instPC);
+        }
         else {
             forwardReg = NO_FORWARDING;
         }
@@ -74,6 +81,7 @@ public class MemWbStage {
             aluIntData = ExMem.getAluIntData();
             destReg = ExMem.getDestReg();
             isLoad = ExMem.getMemRead();
+            jal = ExMem.getJal();
             if (isLoad) {
                 loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
             }

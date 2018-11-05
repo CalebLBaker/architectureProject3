@@ -17,6 +17,7 @@ public class IdExStage {
     boolean memWrite = false;
     boolean halted = false;
     boolean squashed = false;
+    boolean jal = false;
 
     public IdExStage(PipelineSimulator sim) {
         simulator = sim;
@@ -36,6 +37,10 @@ public class IdExStage {
     
     public int getRegA() {
         return regA;
+    }
+    
+    public boolean getJal() {
+        return jal;
     }
     
     public int getRegB() {
@@ -98,25 +103,26 @@ public class IdExStage {
                 if (inst instanceof ITypeInst) {
                     shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
                                    || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI
-                                   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI
-                                   || opcode == Instruction.INST_SLL || opcode == Instruction.INST_SRL
-                                   || opcode == Instruction.INST_SRA;
+                                   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI;
                     ITypeInst iType = (ITypeInst)inst;
                     regA = iType.getRS();
                     regAData = registers[regA];
                     destReg = iType.getRT();
+                    regB = destReg;
                     regBData = registers[destReg];
                     immediate = iType.getImmed();
                     memRead = opcode == Instruction.INST_LW;
                     memWrite = opcode == Instruction.INST_SW;
                     halted = false;
+                    jal = opcode == Instruction.INST_JALR;
                 }
                 else if (inst instanceof JTypeInst) {
                     shouldWriteback = false;
                     immediate = ((JTypeInst)inst).getOffset();
                     memRead = false;
                     memWrite = false;
-                    halted = opcode == Instruction.INST_HALT;;
+                    halted = opcode == Instruction.INST_HALT;
+                    jal = opcode == Instruction.INST_JAL;
                 }
                 else {
                     shouldWriteback = true;
@@ -129,6 +135,7 @@ public class IdExStage {
                     memRead = false;
                     memWrite = false;
                     halted = false;
+                    jal = false;
                 }
             }
         }

@@ -15,6 +15,7 @@ public class ExMemStage {
     boolean branchTaken = false;
     boolean interlocked = false;
     boolean squashed = false;
+    boolean jal = false;
 
     public ExMemStage(PipelineSimulator sim) {
         simulator = sim;
@@ -35,6 +36,10 @@ public class ExMemStage {
         return interlocked;
     }
     
+    public boolean getJal() {
+        return jal;
+    }
+    
     public void update() {
     	IdExStage idEx = simulator.getIdExStage();
         int regA = idEx.getRegA();
@@ -46,6 +51,7 @@ public class ExMemStage {
             interlocked = false;
             storeIntData = forward(regB, idEx.getRegBData());
             int regAData = forward(regA, idEx.getRegAData());
+            jal = idEx.getJal();
             halted = idEx.getHalted();
             instPC = idEx.getInstPC();
             opcode = idEx.getOpcode();
@@ -113,7 +119,7 @@ public class ExMemStage {
                 }
                 case (Instruction.INST_JR) :
                 case (Instruction.INST_JALR) : {
-                    aluIntData = instPC + storeIntData;
+                    aluIntData = regAData;
                     break;
                 }
                 case (Instruction.INST_LW) :
@@ -134,8 +140,7 @@ public class ExMemStage {
                        || opcode == Instruction.INST_BGTZ && regAData > 0
                        || opcode == Instruction.INST_BGEZ && regAData >= 0;
             if (branchTaken && !squashed) {
-                idEx.setSquashed(true);
-		simulator.getIfIdStage().setSquashed(true);
+		simulator.getIfIdStage().squash();
             }
 	}
     }

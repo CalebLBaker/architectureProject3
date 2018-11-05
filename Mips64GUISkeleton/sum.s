@@ -23,7 +23,8 @@ ADDI R4, R0, 4000
 -- Load number of elements
 LW R2, 0(R4)
 -- Multiply this by 4, since each element is 4 bytes
-SLL R3, R2, 2
+ADDI R28, R0, 4
+MUL R3, R2, R28
 -- R4 is address of beginning of array of numbers
 ADDI R4, R4, 8
 -- R5 now points to first address past array

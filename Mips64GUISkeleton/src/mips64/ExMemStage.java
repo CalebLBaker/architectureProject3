@@ -110,11 +110,11 @@ public class ExMemStage {
                     break;
                 }
                 case (Instruction.INST_SRL) : {
-                    aluIntData = regAData >> idEx.getImmediate();
+                    aluIntData = regAData >>> idEx.getImmediate();
                     break;
                 }
                 case (Instruction.INST_SRA) : {
-                    aluIntData = (int)(((long)regAData) >> idEx.getImmediate());
+                    aluIntData = regAData >> idEx.getImmediate();
                     break;
                 }
                 case (Instruction.INST_JR) :

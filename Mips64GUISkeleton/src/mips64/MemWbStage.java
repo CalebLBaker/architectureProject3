@@ -27,10 +27,6 @@ public class MemWbStage {
         simulator = sim;
     }
 
-    public int getDestReg() {
-        return destReg;
-    }
-
     public int getForwardReg() {
         return forwardReg;
     }

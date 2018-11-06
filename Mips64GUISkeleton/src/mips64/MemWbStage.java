@@ -40,7 +40,7 @@ public class MemWbStage {
     }
     
     public boolean isHalted() {
-        return halted && !squashed;
+        return halted;
     }
     
     public boolean getShouldWriteback() {
@@ -49,7 +49,7 @@ public class MemWbStage {
 
     public void update() {
         
-        if (shouldWriteback && !squashed) {
+        if (shouldWriteback && !squashed && destReg != 0) {
             forwardReg = destReg;
             if (isLoad) {
                 //memory operation
@@ -83,10 +83,11 @@ public class MemWbStage {
             isLoad = ExMem.getMemRead();
             jal = ExMem.getJal();
             if (isLoad) {
-                loadIntData = simulator.getMemory().getIntDataAtAddr(aluIntData);
+                loadIntData=simulator.getMemory().getIntDataAtAddr(aluIntData);
             }
             else if (ExMem.getMemWrite()) {
-                simulator.getMemory().setIntDataAtAddr(aluIntData, ExMem.getStoreIntData());
+                simulator.getMemory().setIntDataAtAddr(aluIntData, 
+                                                       ExMem.getStoreIntData());
             }
         }
     }

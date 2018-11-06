@@ -2,11 +2,11 @@ package mips64;
 
 public class IfIdStage {
     PipelineSimulator simulator;
-    Instruction inst = Instruction.getInstructionFromOper(Instruction.INST_NOP << 26);
+    Instruction inst = 
+            Instruction.getInstructionFromOper(Instruction.INST_NOP << 26);
     int instPC = 0;
     int opcode = Instruction.INST_NOP;
     boolean squashed = false;
-    boolean squashNext = false;
 
     public IfIdStage(PipelineSimulator sim) {
         simulator = sim;
@@ -29,20 +29,15 @@ public class IfIdStage {
         return squashed;
     }
   
-    void squash () {
-        squashed = true;
-        squashNext = true;
-    }
-
     public void update() {
         if (!simulator.getExMemStage().getInterlocked()) {
             int pc = simulator.getPCStage().getPC();
             inst = simulator.getMemory().getInstAtAddr(pc);
             opcode = inst.getOpcode();
             ExMemStage exMem = simulator.getExMemStage();
-            instPC = exMem.getBranchTaken() ? exMem.getAluIntData() : pc + 4;
-            squashed = squashNext;
-            squashNext = false;
+            boolean branched = exMem.getBranchTaken();
+            instPC = branched ? exMem.getAluIntData() : pc + 4;
+            squashed = branched;
         }
     }
 }

@@ -52,7 +52,8 @@ public class ExMemStage {
         }
         storeIntData = forward(regB, storeIntData);
         regAData = forward(regA, regAData);
-        if (shouldWriteback && memRead && !squashed && !interlocked && (destReg == regA || destReg == regB)) {
+        if (shouldWriteback && memRead && !squashed && !interlocked
+                            && (destReg == regA || destReg == regB)) {
             interlocked = true;
         }
         else {
@@ -137,18 +138,19 @@ public class ExMemStage {
                     aluIntData = instPC + idEx.getImmediate();
                 }
             }
-            branchTaken = (opcode == Instruction.INST_JR || opcode == Instruction.INST_JALR
-                       || opcode == Instruction.INST_J || opcode == Instruction.INST_JAL
-                       || opcode == Instruction.INST_BEQ && regAData == storeIntData
-                       || opcode == Instruction.INST_BNE && regAData != storeIntData
+            branchTaken = (opcode == Instruction.INST_JR 
+                       || opcode == Instruction.INST_JALR
+                       || opcode == Instruction.INST_J
+                       || opcode == Instruction.INST_JAL
+                       || opcode == Instruction.INST_BEQ
+                            && regAData == storeIntData
+                       || opcode == Instruction.INST_BNE
+                            && regAData != storeIntData
                        || opcode == Instruction.INST_BLTZ && regAData < 0
                        || opcode == Instruction.INST_BLEZ && regAData <= 0
                        || opcode == Instruction.INST_BGTZ && regAData > 0
                        || opcode == Instruction.INST_BGEZ && regAData >= 0)
                        && !squashed;
-            if (branchTaken && !squashed) {
-		simulator.getIfIdStage().squash();
-            }
 	}
     }
 

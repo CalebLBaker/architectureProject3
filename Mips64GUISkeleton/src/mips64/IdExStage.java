@@ -84,26 +84,25 @@ public class IdExStage {
         return squashed;
     }
     
-    void setSquashed (boolean x) {
-        squashed = x;
-    }
-    
     void setRegister(int regNum, int data) {
     	registers[regNum] = data;
     }
 
     public void update() {
-        if (!simulator.getExMemStage().getInterlocked()) {
+        ExMemStage exMem = simulator.getExMemStage();
+        if (!exMem.getInterlocked()) {
             IfIdStage ifId = simulator.getIfIdStage();
             opcode = ifId.getOpcode();
             instPC = ifId.getInstPC();
             Instruction inst = ifId.getInst();
-            squashed = ifId.getSquashed();
+            squashed = ifId.getSquashed() || exMem.getBranchTaken();
             if (!squashed) {
                 if (inst instanceof ITypeInst) {
-                    shouldWriteback = opcode == Instruction.INST_LW || opcode == Instruction.INST_ADDI
-                                   || opcode == Instruction.INST_ADDI || opcode == Instruction.INST_ANDI
-                                   || opcode == Instruction.INST_ORI || opcode == Instruction.INST_XORI;
+                    shouldWriteback = opcode == Instruction.INST_LW 
+                                   || opcode == Instruction.INST_ADDI
+                                   || opcode == Instruction.INST_ANDI
+                                   || opcode == Instruction.INST_ORI
+                                   || opcode == Instruction.INST_XORI;
                     ITypeInst iType = (ITypeInst)inst;
                     regA = iType.getRS();
                     regAData = registers[regA];

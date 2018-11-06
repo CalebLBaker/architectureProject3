@@ -10,6 +10,7 @@ public class ExMemStage {
     int aluIntData = 0;
     int storeIntData = 0;
     int destReg = 1;
+    int regAData = 0;
     boolean memRead = false;
     boolean memWrite = false;
     boolean branchTaken = false;
@@ -44,13 +45,18 @@ public class ExMemStage {
     	IdExStage idEx = simulator.getIdExStage();
         int regA = idEx.getRegA();
         int regB = idEx.getRegB();
+        
+        if (!interlocked) {
+            storeIntData = idEx.getRegBData();
+            regAData = idEx.getRegAData();
+        }
+        storeIntData = forward(regB, storeIntData);
+        regAData = forward(regA, regAData);
         if (shouldWriteback && memRead && !squashed && !interlocked && (destReg == regA || destReg == regB)) {
             interlocked = true;
         }
         else {
             interlocked = false;
-            storeIntData = forward(regB, idEx.getRegBData());
-            int regAData = forward(regA, idEx.getRegAData());
             jal = idEx.getJal();
             halted = idEx.getHalted();
             instPC = idEx.getInstPC();
@@ -131,14 +137,15 @@ public class ExMemStage {
                     aluIntData = instPC + idEx.getImmediate();
                 }
             }
-            branchTaken = opcode == Instruction.INST_JR || opcode == Instruction.INST_JALR
+            branchTaken = (opcode == Instruction.INST_JR || opcode == Instruction.INST_JALR
                        || opcode == Instruction.INST_J || opcode == Instruction.INST_JAL
                        || opcode == Instruction.INST_BEQ && regAData == storeIntData
                        || opcode == Instruction.INST_BNE && regAData != storeIntData
                        || opcode == Instruction.INST_BLTZ && regAData < 0
                        || opcode == Instruction.INST_BLEZ && regAData <= 0
                        || opcode == Instruction.INST_BGTZ && regAData > 0
-                       || opcode == Instruction.INST_BGEZ && regAData >= 0;
+                       || opcode == Instruction.INST_BGEZ && regAData >= 0)
+                       && !squashed;
             if (branchTaken && !squashed) {
 		simulator.getIfIdStage().squash();
             }

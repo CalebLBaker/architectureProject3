@@ -33,7 +33,6 @@ HALT
 -- R2, R4, R5, R8, R9, R10, R11, and R12 are caller saved 
 --
 LABEL quickSort
-ADDI R13, R0, 4
 --
 -- Allocate stack space and put return address on stack
 ADDI R30, R30, 24
@@ -45,7 +44,7 @@ BLTZ R2, return
 --
 -- Set pivot, pivot_index, i, and j
 ADDI R8, R5, -1
-MUL R8, R8, R13
+SLL R8, R8, 2
 ADD R8, R8, R4
 LW R9, 0(R8)
 ADD R10, R4, R0
@@ -72,7 +71,7 @@ SW R12, 0(R8)
 --
 -- Save arr and left_len to stack
 SUB R12, R10, R4
-DIV R12, R12, R13
+SRL R12, R12, 2
 SW R4, -16(R30)
 SW R12, -8(R30)
 --

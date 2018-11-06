@@ -132,6 +132,7 @@ public class IdExStage {
                     regB = rType.getRT();
                     regBData = registers[regB];
                     destReg = rType.getRD();
+                    immediate = rType.getShamt();
                     memRead = false;
                     memWrite = false;
                     halted = false;
